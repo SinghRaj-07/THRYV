@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Users, Plus, ArrowRight, X, Lock } from "lucide-react";
+import { Users, Plus, ArrowRight, X } from "lucide-react";
 
 type GroupSection = "circles" | "communities";
 type Group = { id:string; name:string; slug?:string; description?:string; created_at:string; member_count:number; joined?:boolean; role?:string };
@@ -14,7 +14,6 @@ export default function GroupsWorkspace({section}:{section:GroupSection}) {
   const [groups,setGroups]=useState<Group[]>([]);
   const [name,setName]=useState("");
   const [description,setDescription]=useState("");
-  const [privateCommunity,setPrivateCommunity]=useState(false);
   const [memberNames,setMemberNames]=useState<Record<string,string>>({});
   const [selected,setSelected]=useState<Group|null>(null);
   const [posts,setPosts]=useState<any[]>([]);
@@ -38,11 +37,11 @@ export default function GroupsWorkspace({section}:{section:GroupSection}) {
     e.preventDefault();if(name.trim().length<2)return;
     setBusy(true);setError("");
     try {
-      const response=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:name.trim(),description:description.trim(),is_private:privateCommunity})});
+      const response=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:name.trim(),description:description.trim()})});
       const data=await response.json();
       if(!response.ok) throw new Error(data.error||"Could not create this space.");
       setGroups(old=>[section==="circles"?data.circle:data.community,...old]);
-      setName("");setDescription("");setPrivateCommunity(false);
+      setName("");setDescription("");
     } catch(e) { setError(e instanceof Error?e.message:"Could not create this space."); }
     finally { setBusy(false); }
   }
@@ -87,7 +86,6 @@ export default function GroupsWorkspace({section}:{section:GroupSection}) {
       <form className="th-group-create" onSubmit={createGroup}>
         <label className="th-label">Name<input className="th-input" value={name} onChange={e=>setName(e.target.value)} minLength={2} maxLength={section==="circles"?48:60} placeholder={section==="circles"?"e.g. Weekend friends":"e.g. Photography lovers"} required/></label>
         <label className="th-label">Description<textarea className="th-input" value={description} onChange={e=>setDescription(e.target.value)} maxLength={section==="circles"?240:500} rows={2} placeholder="What brings this group together?"/></label>
-        {section==="communities"&&<label className="th-check-label"><input type="checkbox" checked={privateCommunity} onChange={e=>setPrivateCommunity(e.target.checked)}/><Lock size={14}/> Make this community private</label>}
         <button className="th-primary" disabled={busy||name.trim().length<2}>{busy?"Creating…":section==="circles"?"Create circle":"Create community"}</button>
       </form>
     </Panel>
