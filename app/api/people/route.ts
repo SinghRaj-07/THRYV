@@ -1,0 +1,2 @@
+import {NextResponse} from "next/server";import {currentUser,unauthorized} from "@/lib/auth";import {adminDb} from "@/lib/supabase";
+export async function GET(req:Request){const u=await currentUser();if(!u)return unauthorized();const q=new URL(req.url).searchParams.get("q")||"";const {data,error}=await adminDb().from("profiles").select("id,username,display_name,bio,avatar_url").neq("id",u.id).ilike("display_name","%"+q.slice(0,60)+"%").limit(20);if(error)return NextResponse.json({error:error.message},{status:400});return NextResponse.json({people:data})}
