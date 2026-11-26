@@ -130,13 +130,12 @@ drop policy if exists "public read media" on storage.objects;
 create policy "public read media" on storage.objects for select using(bucket_id='media');
 drop policy if exists "upload own media folder" on storage.objects;
 create policy "upload own media folder" on storage.objects for insert to authenticated with check(bucket_id='media' and (storage.foldername(name))[1]=auth.uid()::text);
-do $ begin
+do $block$ begin
  if exists (select 1 from pg_publication where pubname = 'supabase_realtime') then
   if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='messages') then alter publication supabase_realtime add table public.messages; end if;
   if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='notifications') then alter publication supabase_realtime add table public.notifications; end if;
  end if;
-end $;
-
+end $block$;
 alter table public.follows enable row level security;
 drop policy if exists "follows visible to signed in" on public.follows;
 create policy "follows visible to signed in" on public.follows for select to authenticated using(true);
