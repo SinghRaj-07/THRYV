@@ -20,7 +20,7 @@ export async function createSession(userId: string) {
   const payload = toBase64Url(encoder.encode(JSON.stringify({ v: 2, sub: userId, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7 })));
   const key = await getKey(secret);
   const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(payload));
-  return \`\${payload}.\${toBase64Url(new Uint8Array(signature))}\`;
+  return payload + "." + toBase64Url(new Uint8Array(signature));
 }
 export async function getSessionSubject(token?: string): Promise<string | null> {
   try {
