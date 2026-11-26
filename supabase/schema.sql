@@ -71,6 +71,14 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
 create index if not exists posts_created_at_idx on public.posts(created_at desc);
 create index if not exists messages_pair_idx on public.messages(sender_id,recipient_id,created_at);
 create index if not exists notifications_user_idx on public.notifications(user_id,created_at desc);
+create table if not exists public.follows (
+ follower_id uuid not null references public.profiles(id) on delete cascade,
+ following_id uuid not null references public.profiles(id) on delete cascade,
+ created_at timestamptz not null default now(),
+ primary key(follower_id,following_id),
+ check(follower_id<>following_id)
+);
+
 alter table public.profiles enable row level security;
 alter table public.posts enable row level security;
 alter table public.likes enable row level security;
@@ -129,13 +137,6 @@ do $ begin
  end if;
 end $;
 
-create table if not exists public.follows (
- follower_id uuid not null references public.profiles(id) on delete cascade,
- following_id uuid not null references public.profiles(id) on delete cascade,
- created_at timestamptz not null default now(),
- primary key(follower_id,following_id),
- check(follower_id<>following_id)
-);
 alter table public.follows enable row level security;
 drop policy if exists "follows visible to signed in" on public.follows;
 create policy "follows visible to signed in" on public.follows for select to authenticated using(true);
