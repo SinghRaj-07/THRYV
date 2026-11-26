@@ -13,7 +13,7 @@ const photo=(id:string,w=600)=>`https://images.unsplash.com/${id}?auto=format&fi
 const fallbackAvatar=photo("photo-1500648767791-00dcc994a43e",120);
 const titleMap:Record<Section,string>={profile:"Your profile",memories:"Your memories",messages:"Messages",explore:"Discover people",notifications:"Notifications",settings:"Settings",stories:"Stories",circles:"Your circles",communities:"Communities"};
 function Avatar({src,name,size=44}:{src?:string|null;name?:string;size?:number}){return <img src={src||fallbackAvatar} alt={name||"Profile"} style={{width:size,height:size,borderRadius:"50%",objectFit:"cover",flexShrink:0}}/>}
-function Panel({children,className=""}:{children:React.ReactNode;className?:string}){return <section className={"th-panel "+className}>{children}</section>}
+function Panel({children,className="",id}:{children:React.ReactNode;className?:string;id?:string}){return <section id={id} className={"th-panel "+className}>{children}</section>}
 function Empty({title,body,icon:Icon=Sparkles}:{title:string;body:string;icon?:any}){return <div className="th-empty"><div className="th-empty-icon"><Icon size={23}/></div><b>{title}</b><p>{body}</p></div>}
 
 export default function WorkspacePage({section}:{section:Section}){
