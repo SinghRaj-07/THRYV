@@ -78,7 +78,7 @@ export default function AuthPage() {
               return <button
                 type="button"
                 key={offset}
-                className={`th-gallery-card th-gallery-card-${offset + 2} ${offset === 0 ? "is-active" : ""}`}
+                className={`th-gallery-card th-gallery-card-${offset + 3} ${offset === 0 ? "is-active" : ""}`}
                 onClick={() => setActivePhoto(index)}
                 aria-label={`Show photo: ${gallery[index].label}`}
                 aria-current={offset === 0 ? "true" : undefined}
