@@ -10,9 +10,8 @@ type Post = { id:string; user_id:string; content:string; media_url?:string; medi
 type Message = { id:string; sender_id:string; recipient_id:string; content:string; created_at:string };
 const nav = [{name:"Home",href:"/",icon:Home},{name:"Explore",href:"/explore",icon:Compass},{name:"Circles",href:"/circles",icon:Flower2},{name:"Communities",href:"/communities",icon:Users},{name:"Messages",href:"/messages",icon:MessageSquare},{name:"Notifications",href:"/notifications",icon:Bell},{name:"Memories",href:"/memories",icon:Bookmark},{name:"Profile",href:"/profile",icon:UserRound},{name:"Settings",href:"/settings",icon:Settings}];
 const photo=(id:string,w=600)=>`https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=85`;
-const fallbackAvatar=photo("photo-1500648767791-00dcc994a43e",120);
 const titleMap:Record<Section,string>={profile:"Your profile",memories:"Your memories",messages:"Messages",explore:"Discover people",notifications:"Notifications",settings:"Settings",stories:"Stories",circles:"Your circles",communities:"Communities"};
-function Avatar({src,name,size=44}:{src?:string|null;name?:string;size?:number}){return <img src={src||fallbackAvatar} alt={name||"Profile"} style={{width:size,height:size,borderRadius:"50%",objectFit:"cover",flexShrink:0}}/>}
+function Avatar({src,name,size=44}:{src?:string|null;name?:string;size?:number}){if(src)return <img src={src} alt={name||"Profile"} style={{width:size,height:size,borderRadius:"50%",objectFit:"cover",flexShrink:0}}/>;return <span className="th-avatar-fallback" style={{width:size,height:size,fontSize:size*.38}}>{(name||"T").trim().slice(0,1).toUpperCase()}</span>}
 function Panel({children,className="",id}:{children:React.ReactNode;className?:string;id?:string}){return <section id={id} className={"th-panel "+className}>{children}</section>}
 function Empty({title,body,icon:Icon=Sparkles}:{title:string;body:string;icon?:any}){return <div className="th-empty"><div className="th-empty-icon"><Icon size={23}/></div><b>{title}</b><p>{body}</p></div>}
 
