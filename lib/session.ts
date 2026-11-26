@@ -3,7 +3,7 @@ const encoder = new TextEncoder();
 function toBase64Url(bytes: Uint8Array) {
   let binary = "";
   for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary).replace(/\\+/g, "-").replace(/\\//g, "_").replace(/=+$/g, "");
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 function fromBase64Url(value: string) {
   const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
@@ -17,10 +17,10 @@ async function getKey(secret: string) {
 export async function createSession(userId: string) {
   const secret = process.env.THRYV_SESSION_SECRET;
   if (!secret) throw new Error("THRYV_SESSION_SECRET is not configured");
-  const payload = toBase64Url(encoder.encode(JSON.stringify({ sub: userId, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7 })));
+  const payload = toBase64Url(encoder.encode(JSON.stringify({ v: 2, sub: userId, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7 })));
   const key = await getKey(secret);
   const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(payload));
-  return `${payload}.${toBase64Url(new Uint8Array(signature))}`;
+  return \`\${payload}.\${toBase64Url(new Uint8Array(signature))}\`;
 }
 export async function getSessionSubject(token?: string): Promise<string | null> {
   try {
@@ -32,7 +32,7 @@ export async function getSessionSubject(token?: string): Promise<string | null> 
     const valid = await crypto.subtle.verify("HMAC", key, fromBase64Url(signature), encoder.encode(payload));
     if (!valid) return null;
     const data = JSON.parse(new TextDecoder().decode(fromBase64Url(payload)));
-    if (typeof data.sub !== "string" || !data.sub || typeof data.exp !== "number" || data.exp <= Math.floor(Date.now() / 1000)) return null;
+    if (data.v !== 2 || typeof data.sub !== "string" || !data.sub || typeof data.exp !== "number" || data.exp <= Math.floor(Date.now() / 1000)) return null;
     return data.sub;
   } catch { return null; }
 }
