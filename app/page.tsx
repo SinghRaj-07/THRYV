@@ -78,7 +78,7 @@ export default function Page() {
           <div className="th-home-section-head"><div><h2>Stories</h2><p>Moments shared by your community</p></div><Link href="/stories">View all <ArrowRight size={14}/></Link></div>
           <div className="th-home-stories">
             <Link href="/stories" className="th-story-create"><span><Plus size={23}/></span><b>Your story</b><small>Share a moment</small></Link>
-            {stories.filter(s=>s.user_id!==user?.id).map(s=><Link href="/stories" className="th-story-card" key={s.id}><img src={s.media_url} alt="Story"/><div className="th-story-user"><Avatar src={s.profiles?.avatar_url} name={s.profiles?.display_name} size={29}/><b>{s.profiles?.display_name||"THRYV member"}</b></div></Link>)}
+            {stories.map(s=><Link href="/stories" className="th-story-card" key={s.id}><img src={s.media_url} alt="Story"/><div className="th-story-user"><Avatar src={s.profiles?.avatar_url} name={s.profiles?.display_name} size={29}/><b>{s.profiles?.display_name||"THRYV member"}</b></div></Link>)}
             {stories.length===0&&<div className="th-story-empty">No active stories yet. Share the first one.</div>}
           </div>
         </section>
