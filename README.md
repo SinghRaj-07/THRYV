@@ -22,10 +22,10 @@ A responsive, glassmorphism social platform based on the supplied THRYV dashboar
 Import this GitHub repository into Vercel, add the same environment variables, then deploy. Supabase remains the persistent database/auth/media backend. Set your Supabase Auth Site URL and allowed redirect URLs to your deployed domain.
 
 ## Implemented in this starter
-- Email/password registration and login through Supabase Auth; access token stored in an HttpOnly cookie
+- Email/password registration and login through Supabase Auth, with signed HttpOnly application sessions linked to Supabase user IDs
 - Authenticated profile read/update and public/private profile preference
 - Persistent feed, post creation, image/video upload, likes, comments and share records
-- Persistent direct-message API and notification API
+- Persistent direct-message API, member discovery, story feed, and activity notifications for follows, likes, comments, shares and messages
 - PostgreSQL schema, indexes, account creation trigger, RLS policies and media bucket
 - Responsive three-column glass dashboard with mobile layout
 
@@ -35,3 +35,11 @@ Import this GitHub repository into Vercel, add the same environment variables, t
 - The service-role key is used only by server route handlers. Keep it secret.
 - Message and notification tables are prepared for Supabase Realtime publication; a production realtime inbox UI, story publishing/viewing, follow graph, moderation/reporting, password reset, refresh-token rotation and end-to-end encrypted chat are not yet complete. Do not treat this starter as production-ready until those are implemented and tested.
 - This repository cannot be fully exercised until a Supabase project and its environment secrets are configured.
+
+
+## New-user flow and account notes
+- New members can register with display name, unique username, email and password from the sign-in screen.
+- Members can sign in with their email or username; the original private owner login remains supported and is provisioned as a Supabase user on first successful sign-in.
+- Apply `supabase/schema.sql` to the connected Supabase project before using registration and social features. The profile-creation trigger is required.
+- The current registration endpoint confirms email addresses immediately for the initial closed beta. Add a verified-email confirmation flow and abuse/rate-limit controls before opening registration publicly.
+- The session lasts seven days and is invalidated on sign-out. Re-login is required after this session format update.
