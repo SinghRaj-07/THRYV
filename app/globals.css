@@ -201,3 +201,12 @@
 @media(max-width:1050px){.th-home-layout{grid-template-columns:160px minmax(0,1fr)!important}.th-home-right{display:none!important}}
 @media(max-width:680px){.th-home-scene{padding:0 0 75px}.th-home-layout{display:block!important}.th-home-sidebar{display:none!important}.th-home-main{padding:12px!important}.th-home-topbar{margin:0 3px 17px}.th-home-welcome h1{font-size:22px}.th-home-welcome{margin-bottom:16px}.th-onboarding{align-items:flex-start;flex-wrap:wrap}.th-onboarding .darkpill{margin-left:51px}.th-home-mobile-nav{position:fixed;z-index:60;left:10px;right:10px;bottom:10px;display:flex;justify-content:space-around;align-items:center;padding:12px 8px;border:1px solid #ffffffdf;border-radius:24px;background:#fffffff0;backdrop-filter:blur(20px);box-shadow:0 8px 30px #25203325}.th-home-mobile-nav a{display:grid;place-items:center;color:#514b70}.th-story-create,.th-story-card{flex-basis:88px;height:120px}.th-post-card{padding:12px}.th-post-media{max-height:350px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+/* Shared motion across every THRYV section */
+.th-panel{animation:th-rise .42s ease both;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.th-nav,.th-primary,.th-icon-button,.th-person-row,.th-switch,.th-danger-button,.th-round-add{transition:all .2s ease}
+.th-primary:hover{transform:translateY(-1px);box-shadow:0 9px 22px #6b60c344}
+.th-icon-button:hover{transform:translateY(-2px);background:#fff}
+.th-nav:hover{transform:translateX(3px)}
+.th-person-card:hover{transform:translateY(-3px);box-shadow:0 18px 38px #38334a1d}
+.th-profile-cover,.th-chat-layout,.th-calendar-grid{animation:th-fade .5s ease both}
