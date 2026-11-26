@@ -104,3 +104,15 @@ create policy "public read media" on storage.objects for select using(bucket_id=
 create policy "upload own media folder" on storage.objects for insert to authenticated with check(bucket_id='media' and (storage.foldername(name))[1]=auth.uid()::text);
 alter publication supabase_realtime add table public.messages;
 alter publication supabase_realtime add table public.notifications;
+
+create table if not exists public.follows (
+ follower_id uuid not null references public.profiles(id) on delete cascade,
+ following_id uuid not null references public.profiles(id) on delete cascade,
+ created_at timestamptz not null default now(),
+ primary key(follower_id,following_id),
+ check(follower_id<>following_id)
+);
+alter table public.follows enable row level security;
+create policy "follows visible to signed in" on public.follows for select to authenticated using(true);
+create policy "follow own account" on public.follows for insert to authenticated with check(follower_id=auth.uid());
+create policy "unfollow own account" on public.follows for delete to authenticated using(follower_id=auth.uid());
