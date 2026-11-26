@@ -79,31 +79,55 @@ alter table public.messages enable row level security;
 alter table public.notifications enable row level security;
 alter table public.stories enable row level security;
 alter table public.shares enable row level security;
+drop policy if exists "profiles visible" on public.profiles;
 create policy "profiles visible" on public.profiles for select to authenticated using(not is_private or id=auth.uid());
+drop policy if exists "profile insert own" on public.profiles;
 create policy "profile insert own" on public.profiles for insert to authenticated with check(id=auth.uid());
+drop policy if exists "profile update own" on public.profiles;
 create policy "profile update own" on public.profiles for update to authenticated using(id=auth.uid()) with check(id=auth.uid());
-create policy "posts visible" on public.posts for select to authenticated using(true);
+drop policy if exists "posts visible" on public.posts;
+create policy "posts visible" on public.posts for select to authenticated using (exists (select 1 from public.profiles p where p.id=posts.user_id and (p.is_private=false or p.id=auth.uid() or exists (select 1 from public.follows f where f.follower_id=auth.uid() and f.following_id=p.id))));
+drop policy if exists "posts insert own" on public.posts;
 create policy "posts insert own" on public.posts for insert to authenticated with check(user_id=auth.uid());
+drop policy if exists "posts delete own" on public.posts;
 create policy "posts delete own" on public.posts for delete to authenticated using(user_id=auth.uid());
+drop policy if exists "likes visible" on public.likes;
 create policy "likes visible" on public.likes for select to authenticated using(true);
+drop policy if exists "likes own" on public.likes;
 create policy "likes own" on public.likes for all to authenticated using(user_id=auth.uid()) with check(user_id=auth.uid());
+drop policy if exists "comments visible" on public.comments;
 create policy "comments visible" on public.comments for select to authenticated using(true);
+drop policy if exists "comments own" on public.comments;
 create policy "comments own" on public.comments for all to authenticated using(user_id=auth.uid()) with check(user_id=auth.uid());
+drop policy if exists "messages participants" on public.messages;
 create policy "messages participants" on public.messages for select to authenticated using(sender_id=auth.uid() or recipient_id=auth.uid());
+drop policy if exists "messages send own" on public.messages;
 create policy "messages send own" on public.messages for insert to authenticated with check(sender_id=auth.uid());
+drop policy if exists "notifications own read" on public.notifications;
 create policy "notifications own read" on public.notifications for select to authenticated using(user_id=auth.uid());
+drop policy if exists "notifications own update" on public.notifications;
 create policy "notifications own update" on public.notifications for update to authenticated using(user_id=auth.uid()) with check(user_id=auth.uid());
+drop policy if exists "stories visible" on public.stories;
 create policy "stories visible" on public.stories for select to authenticated using(expires_at>now());
+drop policy if exists "stories own" on public.stories;
 create policy "stories own" on public.stories for all to authenticated using(user_id=auth.uid()) with check(user_id=auth.uid());
+drop policy if exists "shares visible" on public.shares;
 create policy "shares visible" on public.shares for select to authenticated using(true);
+drop policy if exists "shares own" on public.shares;
 create policy "shares own" on public.shares for insert to authenticated with check(user_id=auth.uid());
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
 values('media','media',true,52428800,array['image/jpeg','image/png','image/webp','image/gif','video/mp4','video/webm','video/quicktime'])
 on conflict(id) do nothing;
+drop policy if exists "public read media" on storage.objects;
 create policy "public read media" on storage.objects for select using(bucket_id='media');
+drop policy if exists "upload own media folder" on storage.objects;
 create policy "upload own media folder" on storage.objects for insert to authenticated with check(bucket_id='media' and (storage.foldername(name))[1]=auth.uid()::text);
-alter publication supabase_realtime add table public.messages;
-alter publication supabase_realtime add table public.notifications;
+do $ begin
+ if exists (select 1 from pg_publication where pubname = 'supabase_realtime') then
+  if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='messages') then alter publication supabase_realtime add table public.messages; end if;
+  if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='notifications') then alter publication supabase_realtime add table public.notifications; end if;
+ end if;
+end $;
 
 create table if not exists public.follows (
  follower_id uuid not null references public.profiles(id) on delete cascade,
@@ -113,6 +137,9 @@ create table if not exists public.follows (
  check(follower_id<>following_id)
 );
 alter table public.follows enable row level security;
+drop policy if exists "follows visible to signed in" on public.follows;
 create policy "follows visible to signed in" on public.follows for select to authenticated using(true);
+drop policy if exists "follow own account" on public.follows;
 create policy "follow own account" on public.follows for insert to authenticated with check(follower_id=auth.uid());
+drop policy if exists "unfollow own account" on public.follows;
 create policy "unfollow own account" on public.follows for delete to authenticated using(follower_id=auth.uid());
