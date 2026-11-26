@@ -31,7 +31,8 @@ async function privateAccount(username: string, password: string) {
     user = updated.user;
   }
   if (!user) throw new Error("Could not create private account");
-  await db.from("profiles").update({ username, display_name: username }).eq("id", user.id);
+  const { error: profileError } = await db.from("profiles").update({ username, display_name: username }).eq("id", user.id);
+  if (profileError) throw new Error("THRYV database is not ready. Apply supabase/schema.sql in your Supabase SQL Editor, then sign in again.");
   return user;
 }
 export async function POST(req: NextRequest) {
