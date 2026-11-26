@@ -88,7 +88,7 @@ alter table public.notifications enable row level security;
 alter table public.stories enable row level security;
 alter table public.shares enable row level security;
 drop policy if exists "profiles visible" on public.profiles;
-create policy "profiles visible" on public.profiles for select to authenticated using(not is_private or id=auth.uid());
+create policy "profiles visible" on public.profiles for select to authenticated using(not is_private or id=auth.uid() or exists (select 1 from public.follows f where f.follower_id=auth.uid() and f.following_id=profiles.id));
 drop policy if exists "profile insert own" on public.profiles;
 create policy "profile insert own" on public.profiles for insert to authenticated with check(id=auth.uid());
 drop policy if exists "profile update own" on public.profiles;
